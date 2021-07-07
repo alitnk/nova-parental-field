@@ -1,62 +1,69 @@
 <?php
 
-namespace Wamadev\NovaParentalField;
+namespace Wama\NovaParentalField;
 
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Fields\ResourceRelationshipGuesser;
 use Laravel\Nova\Fields\Select;
+use Illuminate\Support\Str;
 
 class Parental extends Select
 {
     /**
-     * The field's component.
+     * Create a new field.
      *
-     * @var string
+     * @param  string  $name
+     * @param  string|callable|null  $attribute
+     * @param  callable|null  $resolveCallback
+     * @return void
      */
-    public $component = 'parental-field';
-
-    public function __construct($name = 'Type', ...$otherFields)
+    public function __construct($name = null, $attribute = null, ...$otherInputs)
     {
-        $this->parent();
-        parent::__construct(...func_get_args());
+        $modelInstance = $this->getModelInstance();
+
+        if (!$attribute) {
+            $attribute = class_basename($modelInstance->getInheritanceColumn());
+        }
+
+        if (!$name) {
+            $name = __(Str::title($attribute));
+        }
+
+        $this->options(collect($modelInstance->getChildTypes())->map(function($value, $key) {
+            return __(Str::title($key)) . " (" . $value . ")";
+        }));
+
+        parent::__construct($name, $attribute, ...$otherInputs);
     }
 
     /**
-     * Gets the children list from model class and appends it to meta
+     * Returns a model instance, if no class given automatically guesses it
      *
-     * @var string
+     * @param string|null
+     * @return Model
      */
-    public function parent($modelClass = null)
+    private function getModelInstance($modelClass = null)
     {
         // Gets the model that has called this resource
         if (!isset($modelClass)) {
-            $resource = request()->route('resource');
-            if (!$resource) return;
-            $novaResourceClass = ResourceRelationshipGuesser::guessResource($resource);
-            $novaResourceInstance = (new $novaResourceClass(request()->route($resource)));
-            $modelClass = $novaResourceInstance::$model;
+            $modelClass = $this->guessClass();
         }
 
-        $options = (new $modelClass)->getChildTypes();
-
-        $this->withMeta([
-            'options' => collect($options ?? [])->map(function ($label, $value) {
-                return ['label' => $label, 'value' => $value];
-            })->values()->all(),
-        ]);
-
-        return $this;
+        return new $modelClass;
     }
 
     /**
-     * Prepare the field for JSON serialization.
+     * Guesses the model class
+     * NOTE: this will probably be refactored when i find a better way of doing it.
      *
-     * @return array
+     * @return string
      */
-    public function jsonSerialize()
+    private function guessClass()
     {
-        if (!isset($this->meta['options'])) {
-            throw new \Exception("This field should either be called in a Nova resource or be called `parent()` on (See nova-parental docs)");
-        }
-
-        return parent::jsonSerialize();
+        $resource = request()->route('resource');
+        if (!$resource) return;
+        $novaResourceClass = ResourceRelationshipGuesser::guessResource($resource);
+        $novaResourceInstance = (new $novaResourceClass(request()->route($resource)));
+        return $novaResourceInstance::$model;
     }
+}

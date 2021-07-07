@@ -1,9 +1,11 @@
 {
     "name": "wamadev/nova-parental-field",
-    "description": "A Laravel Nova field.",
+    "description": "A Laravel Nova field for single-table inheritance (Caleb Porzio's \"Parental\" package)",
     "keywords": [
         "laravel",
-        "nova"
+        "nova",
+        "parental",
+        "caleb porzio"
     ],
     "license": "MIT",
     "require": {
@@ -11,13 +13,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Wamadev\\NovaParentalField\\": "src/"
+            "Wama\\NovaParentalField\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Wamadev\\NovaParentalField\\FieldServiceProvider"
+                "Wama\\NovaParentalField\\FieldServiceProvider"
             ]
         }
     },

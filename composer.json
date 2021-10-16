@@ -1,5 +1,5 @@
 {
-    "name": "wamadev/nova-parental-field",
+    "name": "alitnk/nova-parental-field",
     "description": "A Laravel Nova field for single-table inheritance (Caleb Porzio's \"Parental\" package)",
     "keywords": [
         "laravel",

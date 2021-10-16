@@ -4,7 +4,7 @@ A Laravel Nova field made for [Parental](https://github.com/calebporzio/parental
 ## Installation
 
 ```bash
-composer require wamadev/nova-parental-field
+composer require alitnk/nova-parental-field
 ```
 
 ## Usage
